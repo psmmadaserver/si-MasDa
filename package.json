@@ -1,10 +1,9 @@
 {
-  "name": "si-masda-tabler-integrasi",
+  "name": "si-masda-full-ui",
   "version": "1.0.0",
   "private": true,
-  "description": "Frontend Tabler Si MasDA dengan API proxy Vercel ke Google Apps Script",
-  "scripts": {
-    "dev": "vercel dev"
-  },
-  "type": "module"
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  }
 }
