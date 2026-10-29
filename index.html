@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#206bc4" />
+  <title>Si MasDA — Sistem Manajemen MAS Darul Amin</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/css/tabler.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/tabler-icons.min.css">
+  <link rel="stylesheet" href="/app.css">
+</head>
+<body>
+<div id="loginScreen" class="login-wrap">
+  <div class="login-card card card-md">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <div class="brand-mark mx-auto mb-3"><i class="ti ti-school"></i></div>
+        <h1 class="h2 mb-1">Si MasDA</h1>
+        <p class="text-secondary">Sistem Manajemen MAS Darul Amin</p>
+      </div>
+      <div class="alert alert-info" role="note">Tampilan awal Tabler. Integrasi login dengan Apps Script belum diaktifkan pada kerangka ini.</div>
+      <form id="loginForm">
+        <div class="mb-3"><label class="form-label">Username</label><input id="username" class="form-control" autocomplete="username" required placeholder="Masukkan username"></div>
+        <div class="mb-3"><label class="form-label">Password</label><input id="password" class="form-control" type="password" autocomplete="current-password" required placeholder="Masukkan password"></div>
+        <button class="btn btn-primary w-100" type="submit">Masuk <i class="ti ti-arrow-right ms-1"></i></button>
+      </form>
+      <div id="loginMessage" class="small mt-3 text-secondary" aria-live="polite">Kerangka UI saja — jangan gunakan untuk login produksi sebelum adapter API dipasang.</div>
+    </div>
+  </div>
+  <div class="text-secondary small mt-3">© <span id="year"></span> Si MasDA</div>
+</div>
+<div id="appScreen" class="page d-none">
+  <aside class="navbar navbar-vertical navbar-expand-lg navbar-dark sidebar" id="sidebar">
+    <div class="container-fluid">
+      <h1 class="navbar-brand navbar-brand-autodark"><span class="brand-mark brand-mark-sm"><i class="ti ti-school"></i></span><span>Si MasDA</span></h1>
+      <div class="navbar-nav pt-lg-3" id="mainNav">
+        <a class="nav-link active" href="#dashboard" data-view="dashboard"><span class="nav-link-icon"><i class="ti ti-layout-dashboard"></i></span><span class="nav-link-title">Dashboard</span></a>
+        <div class="nav-section-label">MANAJEMEN SEKOLAH</div>
+        <a class="nav-link" href="#master" data-view="master"><span class="nav-link-icon"><i class="ti ti-database"></i></span><span class="nav-link-title">Data Master</span></a>
+        <a class="nav-link" href="#jurnal" data-view="jurnal"><span class="nav-link-icon"><i class="ti ti-notebook"></i></span><span class="nav-link-title">Jurnal Guru</span></a>
+        <a class="nav-link" href="#honor" data-view="honor"><span class="nav-link-icon"><i class="ti ti-wallet"></i></span><span class="nav-link-title">Honor Guru</span></a>
+        <a class="nav-link" href="#absensi" data-view="absensi"><span class="nav-link-icon"><i class="ti ti-calendar-check"></i></span><span class="nav-link-title">Absensi</span></a>
+        <a class="nav-link" href="#kesiswaan" data-view="kesiswaan"><span class="nav-link-icon"><i class="ti ti-users"></i></span><span class="nav-link-title">Kesiswaan</span></a>
+        <a class="nav-link" href="#sarpras" data-view="sarpras"><span class="nav-link-icon"><i class="ti ti-building-warehouse"></i></span><span class="nav-link-title">Sarpras</span></a>
+        <a class="nav-link" href="#ppdb" data-view="ppdb"><span class="nav-link-icon"><i class="ti ti-user-plus"></i></span><span class="nav-link-title">PPDB</span></a>
+        <div class="nav-section-label">PENGATURAN</div>
+        <a class="nav-link" href="#profil" data-view="profil"><span class="nav-link-icon"><i class="ti ti-settings"></i></span><span class="nav-link-title">Profil & Pengaturan</span></a>
+      </div>
+      <div class="mt-auto pt-4 pb-2 small text-white-50">Sistem Manajemen MAS Darul Amin</div>
+    </div>
+  </aside>
+  <div class="page-wrapper">
+    <header class="navbar navbar-expand-md d-print-none topbar"><div class="container-xl">
+      <button class="navbar-toggler" id="toggleSidebar" aria-label="Buka menu"><i class="ti ti-menu-2"></i></button>
+      <div><div class="page-pretitle">SISTEM INFORMASI SEKOLAH</div><h2 class="page-title" id="pageTitle">Dashboard</h2></div>
+      <div class="navbar-nav flex-row order-md-last ms-auto align-items-center gap-3"><div class="d-none d-md-block text-end"><div class="fw-bold" id="userName">Pengguna</div><div class="text-secondary small" id="userRole">Sesi belum terhubung</div></div><button class="btn btn-outline-secondary btn-sm" id="logoutBtn"><i class="ti ti-logout me-1"></i>Keluar</button></div>
+    </div></header>
+    <div class="page-body"><div class="container-xl">
+      <div class="alert alert-warning" id="integrationNotice"><i class="ti ti-alert-triangle me-2"></i>Mode pratinjau: data belum terhubung ke Google Sheets. Jangan masukkan data produksi.</div>
+      <section id="view-dashboard" class="view-pane">
+        <div class="row row-deck row-cards mb-3">
+          <div class="col-sm-6 col-lg-4"><div class="card card-sm"><div class="card-body"><div class="row align-items-center"><div class="col-auto"><span class="bg-primary text-white avatar"><i class="ti ti-users"></i></span></div><div class="col"><div class="text-secondary">Total Siswa</div><div class="h1 mb-0">—</div></div></div></div></div></div>
+          <div class="col-sm-6 col-lg-4"><div class="card card-sm"><div class="card-body"><div class="row align-items-center"><div class="col-auto"><span class="bg-teal text-white avatar"><i class="ti ti-user-star"></i></span></div><div class="col"><div class="text-secondary">Total Guru</div><div class="h1 mb-0">—</div></div></div></div></div></div>
+          <div class="col-sm-6 col-lg-4"><div class="card card-sm"><div class="card-body"><div class="row align-items-center"><div class="col-auto"><span class="bg-orange text-white avatar"><i class="ti ti-school"></i></span></div><div class="col"><div class="text-secondary">Total Kelas</div><div class="h1 mb-0">—</div></div></div></div></div></div>
+        </div>
+        <div class="card"><div class="card-header"><h3 class="card-title">Selamat datang di Si MasDA</h3></div><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-plug-connected"></i></div><p class="empty-title">Kerangka Tabler berhasil dimuat</p><p class="empty-subtitle text-secondary">Langkah selanjutnya adalah menyelesaikan API, autentikasi, pemeriksaan hak akses, lalu memindahkan modul lama satu per satu.</p></div></div></div>
+      </section>
+      <section id="view-placeholder" class="view-pane d-none"><div class="card"><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-tool"></i></div><p class="empty-title" id="placeholderTitle">Modul</p><p class="empty-subtitle text-secondary">Modul ini belum diintegrasikan. Fungsinya tidak dihapus dari sumber asli; lihat folder backend-reference.</p></div></div></div></section>
+    </div></div>
+    <footer class="footer footer-transparent d-print-none"><div class="container-xl"><div class="text-secondary small">Si MasDA · Sistem Manajemen MAS Darul Amin</div></div></footer>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@tabler/core@1.4.0/dist/js/tabler.min.js"></script>
+<script type="module" src="/app.js"></script>
+</body></html>

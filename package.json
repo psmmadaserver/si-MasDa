@@ -1,0 +1,8 @@
+{
+  "name": "si-masda-tabler-migration",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Kerangka migrasi frontend Si MasDA ke Tabler dan Vercel",
+  "scripts": { "dev": "vite --host 0.0.0.0", "build": "vite build", "preview": "vite preview --host 0.0.0.0" },
+  "devDependencies": { "vite": "^6.1.0" }
+}
