@@ -106,18 +106,118 @@ document.querySelectorAll('#mainNav [data-view]').forEach(link => {
     const key = link.dataset.view;
     document.querySelectorAll('#mainNav .nav-link').forEach(a => a.classList.remove('active'));
     link.classList.add('active');
+    $('view-dashboard').classList.add('d-none');
+    $('view-master').classList.add('d-none');
+    $('view-placeholder').classList.add('d-none');
+    $('pageTitle').textContent = menuLabels[key] || 'Modul';
     if (key === 'dashboard') {
-      $('view-dashboard').classList.remove('d-none'); $('view-placeholder').classList.add('d-none');
-      $('pageTitle').textContent = 'Dashboard'; loadDashboard();
+      $('view-dashboard').classList.remove('d-none'); loadDashboard();
+    } else if (key === 'master') {
+      $('view-master').classList.remove('d-none'); loadGuru();
     } else {
-      $('view-dashboard').classList.add('d-none'); $('view-placeholder').classList.remove('d-none');
-      $('pageTitle').textContent = menuLabels[key] || 'Modul'; $('placeholderTitle').textContent = menuLabels[key] || 'Modul';
+      $('view-placeholder').classList.remove('d-none');
+      $('placeholderTitle').textContent = menuLabels[key] || 'Modul';
     }
     if (window.innerWidth < 992) $('sidebar').classList.remove('open');
   });
 });
 $('toggleSidebar').addEventListener('click', () => $('sidebar').classList.toggle('open'));
 $('year').textContent = new Date().getFullYear();
+
+
+let guruCache = [];
+const esc = (value) => String(value == null ? '' : value).replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+function setGuruMessage(message, isError = false) {
+  const el = $('guruMessage'); if (el) { el.textContent = message || ''; el.className = 'small mt-2 ' + (isError ? 'text-danger' : 'text-secondary'); }
+}
+async function loadGuru() {
+  const body = $('guruTableBody');
+  body.innerHTML = '<tr><td colspan="9" class="text-secondary text-center py-4">Memuat data guru…</td></tr>';
+  setGuruMessage('');
+  try {
+    const result = await api('masterGuruList', { sessionToken: getToken() });
+    if (!result.success) {
+      if (result.code === 'SESSION_EXPIRED') { clearSession(); showLogin(result.message || 'Sesi berakhir.'); return; }
+      throw new Error(result.message || 'Data guru gagal dimuat.');
+    }
+    guruCache = Array.isArray(result.data) ? result.data : [];
+    renderGuruTable();
+    setGuruMessage('Berhasil memuat ' + guruCache.length.toLocaleString('id-ID') + ' data guru.');
+  } catch (err) {
+    body.innerHTML = '<tr><td colspan="9" class="text-danger text-center py-4">' + esc(err.message || 'Gagal memuat data.') + '</td></tr>';
+    setGuruMessage(err.message || 'Gagal memuat data guru.', true);
+  }
+}
+function renderGuruTable() {
+  const q = String($('guruSearch').value || '').trim().toLowerCase();
+  const rows = guruCache.filter(g => [g.nip,g.nama,g.mapel,g.username,g.jabatanNama].some(v => String(v || '').toLowerCase().includes(q)));
+  $('guruTableBody').innerHTML = rows.length ? rows.map(g => `<tr>
+    <td class="text-nowrap">${esc(g.nip)}</td><td>${esc(g.nama)}</td><td>${esc(g.mapel)}</td>
+    <td class="text-nowrap">${Number(g.tarif||0).toLocaleString('id-ID')}</td>
+    <td class="text-nowrap">${Number(g.transport||0).toLocaleString('id-ID')}</td>
+    <td class="text-nowrap">${Number(g.tjJabatan||0).toLocaleString('id-ID')}</td>
+    <td>${esc(g.username)}</td><td>${esc(g.jabatanNama||'Guru')}</td>
+    <td class="text-nowrap"><button class="btn btn-outline-primary btn-sm" data-edit-guru="${esc(g.nip)}" title="Edit"><i class="ti ti-edit"></i></button>
+    <button class="btn btn-outline-danger btn-sm ms-1" data-delete-guru="${esc(g.nip)}" title="Hapus"><i class="ti ti-trash"></i></button></td></tr>`).join('') :
+    '<tr><td colspan="9" class="text-secondary text-center py-4">Tidak ada data yang cocok.</td></tr>';
+  document.querySelectorAll('[data-edit-guru]').forEach(btn => btn.addEventListener('click', () => editGuru(btn.dataset.editGuru)));
+  document.querySelectorAll('[data-delete-guru]').forEach(btn => btn.addEventListener('click', () => deleteGuru(btn.dataset.deleteGuru)));
+}
+function resetGuruForm() {
+  $('guruForm').reset(); $('guruOldNip').value = ''; $('guruNip').readOnly = false;
+  $('guruTarif').value = '0'; $('guruTransport').value = '0'; $('guruTjJabatan').value = '0'; $('guruJabatan').value = 'Guru';
+  $('guruPassword').value = ''; $('guruFormTitle').textContent = 'Tambah Guru'; $('guruFormMessage').textContent = '';
+}
+function openGuruForm() { $('guruFormWrap').classList.remove('d-none'); $('guruFormWrap').scrollIntoView({behavior:'smooth',block:'start'}); }
+function editGuru(nip) {
+  const g = guruCache.find(x => String(x.nip) === String(nip)); if (!g) return;
+  resetGuruForm(); $('guruFormTitle').textContent = 'Edit Data Guru';
+  $('guruOldNip').value = g.nip; $('guruNip').value = g.nip; $('guruNip').readOnly = true;
+  $('guruNama').value = g.nama || ''; $('guruMapel').value = g.mapel || '';
+  $('guruTarif').value = g.tarif || 0; $('guruTransport').value = g.transport || 0;
+  $('guruTjJabatan').value = g.tjJabatan || 0; $('guruJabatan').value = g.jabatanNama || 'Guru';
+  $('guruUsername').value = g.username || ''; $('guruPassword').value = '';
+  openGuruForm();
+}
+async function deleteGuru(nip) {
+  const g = guruCache.find(x => String(x.nip) === String(nip));
+  if (!g || !window.confirm('Hapus data guru ' + g.nama + ' (' + g.nip + ')? Data guru yang dihapus tidak dapat dipulihkan.')) return;
+  try {
+    const result = await api('masterGuruDelete', {sessionToken:getToken(), nip});
+    if (!result.success) throw new Error(result.message || 'Data guru gagal dihapus.');
+    setGuruMessage(result.message || 'Data guru berhasil dihapus.');
+    await loadGuru();
+  } catch(err) { setGuruMessage(err.message || 'Gagal menghapus data guru.', true); }
+}
+$('newGuruBtn').addEventListener('click', () => { resetGuruForm(); openGuruForm(); });
+$('cancelGuruBtn').addEventListener('click', () => $('guruFormWrap').classList.add('d-none'));
+$('refreshGuruBtn').addEventListener('click', loadGuru);
+$('guruSearch').addEventListener('input', renderGuruTable);
+$('guruForm').addEventListener('submit', async (event) => {
+  event.preventDefault();
+  const data = {
+    nip: $('guruNip').value.trim(), oldNip: $('guruOldNip').value.trim(),
+    nama: $('guruNama').value.trim(), mapel: $('guruMapel').value.trim(),
+    tarif: Number($('guruTarif').value || 0), transport: Number($('guruTransport').value || 0),
+    tjJabatan: Number($('guruTjJabatan').value || 0), jabatanNama: $('guruJabatan').value.trim() || 'Guru',
+    username: $('guruUsername').value.trim(), password: $('guruPassword').value
+  };
+  if (!data.nip || !data.nama) { $('guruFormMessage').textContent = 'NIP dan Nama Guru wajib diisi.'; return; }
+  const isNew = !data.oldNip;
+  if (isNew && (!data.username || !data.password)) { $('guruFormMessage').textContent = 'Username dan password wajib diisi untuk akun guru baru.'; return; }
+  const button = $('saveGuruBtn'); button.disabled = true; button.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Menyimpan…';
+  $('guruFormMessage').textContent = '';
+  try {
+    const result = await api('masterGuruSave', {sessionToken:getToken(), data});
+    if (!result.success) throw new Error(result.message || 'Data guru gagal disimpan.');
+    $('guruFormMessage').textContent = result.message || 'Data guru berhasil disimpan.';
+    $('guruFormMessage').className = 'small mt-3 text-success';
+    await loadGuru(); resetGuruForm(); $('guruFormWrap').classList.add('d-none');
+  } catch(err) {
+    $('guruFormMessage').textContent = err.message || 'Gagal menyimpan data guru.';
+    $('guruFormMessage').className = 'small mt-3 text-danger';
+  } finally { button.disabled = false; button.innerHTML = '<i class="ti ti-device-floppy me-1"></i>Simpan Guru'; }
+});
 
 (async function restoreSession() {
   const token = getToken();

@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const allowed = new Set(['login', 'session', 'logout', 'dashboard']);
+    const allowed = new Set(['login', 'session', 'logout', 'dashboard', 'masterGuruList', 'masterGuruSave', 'masterGuruDelete']);
     if (!body || !allowed.has(String(body.action || ''))) {
       return res.status(400).json({ success: false, message: 'Aksi API tidak diizinkan.' });
     }

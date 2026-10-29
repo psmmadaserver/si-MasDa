@@ -1,6 +1,6 @@
 # Si MasDA — Tabler + integrasi awal Apps Script
 
-Paket ini mengaktifkan **login, pemulihan sesi saat refresh, logout, dan statistik utama dashboard** melalui backend Google Apps Script yang sudah ada. Menu lain tetap ditampilkan sebagai penanda dan **belum terintegrasi**; jangan menganggap seluruh aplikasi lama sudah dipindahkan.
+Paket ini mengaktifkan **login, pemulihan sesi saat refresh, logout, statistik dashboard, dan modul Master Guru** melalui backend Google Apps Script yang sudah ada. Modul Master Guru mendukung daftar, pencarian, tambah, edit, dan hapus untuk akun Administrator. Modul lain tetap berupa penanda dan belum terintegrasi.
 
 ## 1. Perbarui Google Apps Script
 1. Buka project Apps Script yang saat ini melayani Si MasDA.
@@ -30,7 +30,7 @@ Simpan lalu lakukan **Redeploy**. URL backend hanya disimpan di konfigurasi serv
 
 ## Catatan penting
 - Fungsi `doGet()` lama tidak diubah, sehingga antarmuka GAS lama tetap tersedia.
-- API tahap ini hanya menerima aksi `login`, `session`, `logout`, dan `dashboard`; tidak ada pemanggilan fungsi backend arbitrer.
+- API menerima aksi `login`, `session`, `logout`, `dashboard`, `masterGuruList`, `masterGuruSave`, dan `masterGuruDelete`; tidak ada pemanggilan fungsi backend arbitrer. Akses Master Guru dibatasi untuk Administrator dan respons daftar tidak mengirim password ke browser.
 - Password tidak disimpan di `localStorage`; hanya token sesi dan informasi tampilan pengguna.
 - Token sesi berada di `localStorage` sehingga bertahan saat refresh, tetapi berakhir mengikuti batas cache 6 jam pada backend.
-- Modul Data Master, Jurnal, Honor, Absensi, Kesiswaan, Sarpras, PPDB, dan pengaturan belum dipindahkan ke API Tabler. Integrasikan satu per satu sebelum memakai frontend Vercel sebagai aplikasi produksi penuh.
+- Pada tahap ini yang terintegrasi dari Data Master baru **Master Guru**. Master Kelas, Master Siswa, Jadwal Mapel, Jurnal, Honor, Absensi, Kesiswaan, Sarpras, PPDB, dan pengaturan belum dipindahkan ke API Tabler. Uji Master Guru dengan akun Administrator terlebih dahulu sebelum melanjutkan modul lain.

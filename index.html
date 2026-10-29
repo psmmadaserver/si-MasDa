@@ -65,7 +65,33 @@
         </div>
         <div class="card"><div class="card-header"><h3 class="card-title">Selamat datang di Si MasDA</h3></div><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-plug-connected"></i></div><p class="empty-title">Selamat datang kembali!</p><p class="empty-subtitle text-secondary" id="dashboardMessage">Dashboard terhubung ke data Si MasDA.</p></div></div></div>
       </section>
-      <section id="view-placeholder" class="view-pane d-none"><div class="card"><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-tool"></i></div><p class="empty-title" id="placeholderTitle">Modul</p><p class="empty-subtitle text-secondary">Antarmuka modul ini akan dihubungkan ke fungsi backend lama pada tahap berikutnya. Data Google Sheets tidak diubah oleh halaman ini.</p></div></div></div></section>
+      <section id="view-master" class="view-pane d-none">
+        <div class="row row-cards">
+          <div class="col-12"><div class="card">
+            <div class="card-header"><h3 class="card-title">Master Guru</h3><div class="card-actions"><button class="btn btn-primary btn-sm" id="newGuruBtn"><i class="ti ti-plus me-1"></i>Tambah Guru</button></div></div>
+            <div class="card-body border-bottom py-3"><div class="row g-2 align-items-center"><div class="col"><input id="guruSearch" class="form-control" placeholder="Cari NIP, nama, mata pelajaran, atau username…"></div><div class="col-auto"><button class="btn btn-outline-secondary" id="refreshGuruBtn"><i class="ti ti-refresh me-1"></i>Muat Ulang</button></div></div><div id="guruMessage" class="small mt-2 text-secondary" aria-live="polite"></div></div>
+            <div class="table-responsive"><table class="table table-vcenter card-table table-striped"><thead><tr><th>NIP</th><th>Nama Guru</th><th>Mata Pelajaran</th><th>Tarif/Jam</th><th>Tj. Transport</th><th>Tj. Jabatan</th><th>Username</th><th>Jabatan</th><th class="w-1">Aksi</th></tr></thead><tbody id="guruTableBody"><tr><td colspan="9" class="text-secondary text-center py-4">Memuat data…</td></tr></tbody></table></div>
+          </div></div>
+          <div class="col-12 d-none" id="guruFormWrap"><div class="card">
+            <div class="card-header"><h3 class="card-title" id="guruFormTitle">Tambah Guru</h3><div class="card-actions"><button class="btn btn-outline-secondary btn-sm" id="cancelGuruBtn">Tutup</button></div></div>
+            <form id="guruForm"><div class="card-body"><div class="row g-3">
+              <div class="col-md-4"><label class="form-label">NIP</label><input class="form-control" id="guruNip" required maxlength="40" placeholder="NIP (boleh diawali 0)"></div>
+              <div class="col-md-8"><label class="form-label">Nama Guru</label><input class="form-control" id="guruNama" required maxlength="150"></div>
+              <div class="col-md-6"><label class="form-label">Mata Pelajaran</label><input class="form-control" id="guruMapel" placeholder="Contoh: Matematika, Fisika"></div>
+              <div class="col-md-3"><label class="form-label">Tarif per Jam</label><input class="form-control" id="guruTarif" type="number" min="0" step="any" value="0"></div>
+              <div class="col-md-3"><label class="form-label">Tunjangan Transport</label><input class="form-control" id="guruTransport" type="number" min="0" step="any" value="0"></div>
+              <div class="col-md-3"><label class="form-label">Tunjangan Jabatan</label><input class="form-control" id="guruTjJabatan" type="number" min="0" step="any" value="0"></div>
+              <div class="col-md-3"><label class="form-label">Nama Jabatan</label><input class="form-control" id="guruJabatan" value="Guru"></div>
+              <div class="col-md-3"><label class="form-label">Username</label><input class="form-control" id="guruUsername" autocomplete="off" placeholder="Username akun guru"></div>
+              <div class="col-md-3"><label class="form-label">Password</label><input class="form-control" id="guruPassword" type="password" autocomplete="new-password" placeholder="Kosongkan jika tidak diubah"></div>
+              <div class="col-12"><div class="form-hint">Untuk guru baru, isi username dan password akun. Saat mengedit, password boleh dikosongkan agar password lama tetap dipakai.</div></div>
+              <input type="hidden" id="guruOldNip">
+            </div><div id="guruFormMessage" class="small mt-3" aria-live="polite"></div></div>
+            <div class="card-footer text-end"><button class="btn btn-primary" id="saveGuruBtn" type="submit"><i class="ti ti-device-floppy me-1"></i>Simpan Guru</button></div></form>
+          </div></div>
+        </div>
+      </section>
+      <section id="view-placeholder" class="view-pane d-none"><div class="card"><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-tool"></i></div><p class="empty-title" id="placeholderTitle">Modul</p><p class="empty-subtitle text-secondary">Modul ini akan diintegrasikan secara bertahap ke fungsi backend Si MasDA.</p></div></div></div></section>
     </div></div>
     <footer class="footer footer-transparent d-print-none"><div class="container-xl"><div class="text-secondary small">Si MasDA · Sistem Manajemen MAS Darul Amin</div></div></footer>
   </div>
