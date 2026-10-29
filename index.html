@@ -56,7 +56,7 @@
       <div class="navbar-nav flex-row order-md-last ms-auto align-items-center gap-3"><div class="d-none d-md-block text-end"><div class="fw-bold" id="userName">Pengguna</div><div class="text-secondary small" id="userRole">Sesi belum terhubung</div></div><button class="btn btn-outline-secondary btn-sm" id="logoutBtn"><i class="ti ti-logout me-1"></i>Keluar</button></div>
     </div></header>
     <div class="page-body"><div class="container-xl">
-      <div class="alert alert-info" id="integrationNotice"><i class="ti ti-info-circle me-2"></i>Login, pemulihan sesi, dan ringkasan dashboard terhubung ke backend Apps Script. Modul lainnya akan diintegrasikan bertahap.</div>
+      <div class="alert alert-info" id="integrationNotice"><i class="ti ti-plug-connected me-2"></i>Si MasDA terhubung ke Google Apps Script dan Google Sheets.</div>
       <section id="view-dashboard" class="view-pane">
         <div class="row row-deck row-cards mb-3">
           <div class="col-sm-6 col-lg-4"><div class="card card-sm"><div class="card-body"><div class="row align-items-center"><div class="col-auto"><span class="bg-primary text-white avatar"><i class="ti ti-users"></i></span></div><div class="col"><div class="text-secondary">Total Siswa</div><div class="stat-number" id="statSiswa">—</div></div></div></div></div></div>
@@ -66,6 +66,8 @@
         <div class="card"><div class="card-header"><h3 class="card-title">Selamat datang di Si MasDA</h3></div><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-plug-connected"></i></div><p class="empty-title">Selamat datang kembali!</p><p class="empty-subtitle text-secondary" id="dashboardMessage">Dashboard terhubung ke data Si MasDA.</p></div></div></div>
       </section>
       <section id="view-master" class="view-pane d-none">
+        <div class="btn-list mb-3" id="masterSubnav"><button class="btn btn-primary" data-master-sub="guru">Master Guru</button><button class="btn btn-outline-primary" data-master-sub="kelas">Master Kelas</button><button class="btn btn-outline-primary" data-master-sub="siswa">Master Siswa</button><button class="btn btn-outline-primary" data-master-sub="jadwal">Jadwal Mapel</button></div>
+        <div id="guruModule">
         <div class="row row-cards">
           <div class="col-12"><div class="card">
             <div class="card-header"><h3 class="card-title">Master Guru</h3><div class="card-actions"><button class="btn btn-primary btn-sm" id="newGuruBtn"><i class="ti ti-plus me-1"></i>Tambah Guru</button></div></div>
@@ -89,9 +91,9 @@
             </div><div id="guruFormMessage" class="small mt-3" aria-live="polite"></div></div>
             <div class="card-footer text-end"><button class="btn btn-primary" id="saveGuruBtn" type="submit"><i class="ti ti-device-floppy me-1"></i>Simpan Guru</button></div></form>
           </div></div>
-        </div>
+        </div></div>
       </section>
-      <section id="view-placeholder" class="view-pane d-none"><div class="card"><div class="card-body"><div class="empty"><div class="empty-icon"><i class="ti ti-tool"></i></div><p class="empty-title" id="placeholderTitle">Modul</p><p class="empty-subtitle text-secondary">Modul ini akan diintegrasikan secara bertahap ke fungsi backend Si MasDA.</p></div></div></div></section>
+      <section id="view-generic" class="view-pane d-none"><div class="btn-list mb-3" id="genericSubnav"></div><div class="card"><div class="card-header"><h3 class="card-title" id="genericTitle">Modul</h3><div class="card-actions d-flex gap-2"><button class="btn btn-outline-secondary btn-sm" id="genericRefresh"><i class="ti ti-refresh me-1"></i>Muat Ulang</button><button class="btn btn-primary btn-sm" id="genericAdd"><i class="ti ti-plus me-1"></i>Tambah Data</button></div></div><div class="card-body border-bottom"><div class="row g-2 align-items-center"><div class="col"><input id="genericSearch" class="form-control" placeholder="Cari data…"></div><div class="col-auto"><input id="genericMonth" class="form-control" type="month" style="display:none"></div></div><div id="genericMessage" class="small mt-2 text-secondary" aria-live="polite"></div></div><div class="table-responsive"><table class="table table-vcenter table-striped card-table"><thead id="genericHead"></thead><tbody id="genericBody"><tr><td class="text-secondary text-center py-4">Pilih menu untuk memuat data.</td></tr></tbody></table></div></div><div class="card mt-3 d-none" id="genericFormWrap"><div class="card-header"><h3 class="card-title" id="genericFormTitle">Tambah Data</h3><div class="card-actions"><button class="btn btn-outline-secondary btn-sm" id="genericCancel">Tutup</button></div></div><form id="genericForm"><div class="card-body"><div class="row g-3" id="genericFields"></div><div id="genericFormMessage" class="small mt-3"></div></div><div class="card-footer text-end"><button class="btn btn-primary" type="submit" id="genericSave"><i class="ti ti-device-floppy me-1"></i>Simpan</button></div></form></div></section>
     </div></div>
     <footer class="footer footer-transparent d-print-none"><div class="container-xl"><div class="text-secondary small">Si MasDA · Sistem Manajemen MAS Darul Amin</div></div></footer>
   </div>

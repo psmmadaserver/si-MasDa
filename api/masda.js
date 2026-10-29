@@ -11,7 +11,7 @@ export default async function handler(req, res) {
 
   try {
     const body = typeof req.body === 'string' ? JSON.parse(req.body) : (req.body || {});
-    const allowed = new Set(['login', 'session', 'logout', 'dashboard', 'masterGuruList', 'masterGuruSave', 'masterGuruDelete']);
+    const allowed = new Set(['login','session','logout','dashboard','masterData','masterGuruList','masterGuruSave','masterGuruDelete','masterKelasSave','masterKelasDelete','masterSiswaSave','masterSiswaDelete','masterJadwalSave','masterJadwalDelete','jurnalList','jurnalSave','jurnalDelete','honorList','honorMine','absensiStudents','absensiSave','absensiDaily','absensiMonthly','kesiswaanList','kesiswaanSave','sarprasList','sarprasSave','sarprasDelete','ppdbList','ppdbSave','ppdbDelete','profilGet','profilSave','strukturGet','strukturSave','websiteList','websiteSave','websiteDelete','penggunaList','penggunaSave','penggunaDelete','pengumumanList','pengumumanSave','pengumumanDelete']);
     if (!body || !allowed.has(String(body.action || ''))) {
       return res.status(400).json({ success: false, message: 'Aksi API tidak diizinkan.' });
     }
