@@ -21,3 +21,7 @@ Paket ini menggunakan `index.html` asli Si MasDA dari file sumber yang dikirimka
 - Fungsi eksternal WhatsApp tetap membutuhkan token/provider valid yang diatur melalui aplikasi. QR scanner membutuhkan HTTPS dan izin kamera browser.
 - Sintaks lokal tidak membuktikan integrasi produksi. Uji semua modul sebelum dipakai untuk data penting.
 - Jangan memublikasikan `kode.gs`, token provider WhatsApp, atau kredensial.
+
+
+## Perbaikan mobile v3
+Versi ini menghapus `transform: translateZ(0)` / backface compositing pada `.content-section` dan menyederhanakan reset viewport saat berpindah menu. Di beberapa versi Android Chrome, layer compositing dapat menyebabkan area konten tampak kosong sampai layar disentuh atau digulir. Perubahan hanya pada `index.html`; backend `kode.gs` dan bridge API tidak diubah.
