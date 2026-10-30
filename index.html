@@ -75,7 +75,7 @@
     body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     /* Perbaikan tampilan mobile: repaint konten dan area putih saat ganti menu. */
     @media (max-width: 767.98px) {
-      html, body { min-height: 100%; overflow-x: hidden; }
+      html, body { min-height: 100%; overflow-x: hidden; overflow-anchor: none; }
       #mainApp { min-height: 100dvh; }
       #mainApp .row, #mainApp .row > [class*="col-"] { min-width: 0; }
       #mainApp .content-section { position: relative; transform: translateZ(0); backface-visibility: hidden; }
@@ -2830,8 +2830,42 @@
     if (activeNavItem) activeNavItem.classList.add('active');
 
     var sidebarEl = document.getElementById('sidebarMenu');
-    var bsOffcanvas = bootstrap.Offcanvas.getInstance(sidebarEl);
+    var bsOffcanvas = sidebarEl ? bootstrap.Offcanvas.getInstance(sidebarEl) : null;
     if (bsOffcanvas) bsOffcanvas.hide();
+
+    // Android Chrome can restore the old scroll offset after Bootstrap closes
+    // the mobile offcanvas. Reset only after the hide transition has completed,
+    // then force layout so the selected section is visible immediately.
+    if (window.matchMedia('(max-width: 767.98px)').matches) {
+      var resetMobileMenuViewport = function() {
+        var app = document.getElementById('mainApp');
+        var activeSection = document.getElementById('sec-' + targetKey);
+        if (app) { app.style.visibility = 'visible'; void app.offsetHeight; }
+        if (activeSection) {
+          activeSection.classList.remove('d-none');
+          activeSection.style.visibility = 'visible';
+          void activeSection.offsetHeight;
+        }
+        window.scrollTo(0, 0);
+        document.documentElement.scrollTop = 0;
+        document.body.scrollTop = 0;
+        if (app) app.scrollTop = 0;
+        requestAnimationFrame(function() {
+          window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          if (activeSection) {
+            activeSection.style.transform = 'translate3d(0,0,0)';
+            void activeSection.getBoundingClientRect().height;
+            requestAnimationFrame(function() { activeSection.style.transform = ''; });
+          }
+        });
+      };
+      if (sidebarEl && sidebarEl.classList.contains('show')) {
+        sidebarEl.addEventListener('hidden.bs.offcanvas', resetMobileMenuViewport, { once: true });
+      }
+      [0, 120, 380, 650].forEach(function(delay) { setTimeout(resetMobileMenuViewport, delay); });
+    }
 
     if (targetKey === 'honor') loadHonorGuru();
     if (targetKey === 'hariEfektif') loadHariEfektif();
