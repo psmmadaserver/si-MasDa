@@ -73,6 +73,26 @@
 
   <style>
     body { background-color: #f8fafc; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    /* Perbaikan tampilan mobile: repaint konten dan area putih saat ganti menu. */
+    @media (max-width: 767.98px) {
+      html, body { min-height: 100%; overflow-x: hidden; }
+      #mainApp { min-height: 100dvh; }
+      #mainApp .row, #mainApp .row > [class*="col-"] { min-width: 0; }
+      #mainApp .content-section { position: relative; transform: translateZ(0); backface-visibility: hidden; }
+      #mainApp .sticky-top { background: #fff !important; color: #172033 !important; border-bottom: 1px solid #e5e7eb !important; box-shadow: 0 2px 10px rgba(15,23,42,.06) !important; z-index: 1030; }
+      #mainApp .mobile-menu-btn { color: #334155 !important; border-color: #cbd5e1 !important; }
+      #mainApp .mobile-menu-btn i { color: #334155 !important; }
+      #mainApp #mobileSchoolName { color: #172033 !important; }
+      #mainApp #mobileUserRoleBadge { white-space: nowrap; }
+      #mainApp .mobile-brand-logo { width: 30px; height: 30px; object-fit: contain; border-radius: 7px; flex: 0 0 auto; }
+      #mainApp .mobile-logout-btn { width: 32px; height: 32px; padding: 0; display: inline-flex; align-items: center; justify-content: center; color: #475569; border: 1px solid #dbe2ea; background: #fff; border-radius: 9px; }
+      #sidebarMenu.offcanvas-md { --bs-offcanvas-width: max-content; width: max-content; max-width: 86vw; }
+      #sidebarMenu.sidebar { min-height: 100dvh; height: 100dvh !important; overflow-y: auto; overscroll-behavior: contain; }
+      #sidebarMenu #sidebarNavList { width: max-content; min-width: 235px; max-width: calc(86vw - 2rem); }
+      #sidebarMenu #sidebarNavList .nav-link { white-space: nowrap; padding-right: 1rem; }
+      #sidebarMenu .offcanvas-header { min-width: 235px; }
+    }
+
     /* Lapisan modal master: modal harus berada di atas backdrop dan tetap bisa diklik. */
     .modal { z-index: 1060; }
     .modal-backdrop { z-index: 1050; }
@@ -855,14 +875,16 @@
 <div id="mainApp" class="container-fluid d-none p-0">
   
   <!-- MOBILE TOP NAVBAR -->
-  <div class="d-md-none bg-dark text-white p-2 px-3 d-flex justify-content-between align-items-center no-print sticky-top border-bottom border-secondary shadow-sm">
-    <div class="d-flex align-items-center gap-2">
-      <button class="btn btn-outline-light btn-sm py-1 px-2" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu">
-        <i class="bi bi-list fs-5"></i>
-      </button>
+  <div class="d-md-none p-2 px-3 d-flex justify-content-between align-items-center no-print sticky-top">
+    <div class="d-flex align-items-center gap-2" style="min-width:0">
+      <button class="btn btn-outline-secondary btn-sm py-1 px-2 mobile-menu-btn" type="button" data-bs-toggle="offcanvas" data-bs-target="#sidebarMenu" aria-controls="sidebarMenu" aria-label="Buka menu"><i class="bi bi-list fs-5"></i></button>
+      <img id="mobileAppLogo" class="mobile-brand-logo" alt="Logo Si MasDA" src="" style="display:none">
       <span class="fw-bold fs-6 text-truncate" style="max-width: 180px;" id="mobileSchoolName">Si MasDA</span>
     </div>
-    <small class="badge bg-info text-dark" id="mobileUserRoleBadge">Administrator</small>
+    <div class="d-flex align-items-center gap-2">
+      <small class="badge bg-info text-dark" id="mobileUserRoleBadge">Administrator</small>
+      <button class="mobile-logout-btn" type="button" onclick="logout(event)" aria-label="Keluar" title="Keluar"><i class="bi bi-box-arrow-right"></i></button>
+    </div>
   </div>
 
   <div class="row g-0">
@@ -872,7 +894,7 @@
         
         <!-- HEADER OFFCANVAS HP -->
         <div class="offcanvas-header d-md-none text-white border-bottom border-secondary pb-2 mb-3">
-          <h5 class="offcanvas-title fw-bold" id="sidebarMenuLabel"><i class="bi bi-mortarboard-fill text-info me-2"></i> Si MasDA</h5>
+          <h5 class="offcanvas-title fw-bold d-flex align-items-center" id="sidebarMenuLabel"><img id="sidebarMobileLogo" src="" alt="Logo Si MasDA" style="display:none;width:30px;height:30px;object-fit:contain;margin-right:10px;border-radius:7px"> Si MasDA</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" data-bs-target="#sidebarMenu" aria-label="Close"></button>
         </div>
 
@@ -985,6 +1007,11 @@
                   <div class="dash-bar-label"><span><i class="bi bi-heart-pulse-fill me-1"></i>Sakit Siswa</span><strong id="dashPctSakit">0%</strong></div>
                   <div class="dash-bar-track"><div class="dash-bar-fill" id="dashBarSakit" style="width:0%"></div></div>
                   <small id="dashSubSakit">0 Siswa Sakit</small>
+                </div>
+                <div class="dash-bar-item">
+                  <div class="dash-bar-label"><span><i class="bi bi-clock-history me-1"></i>Terlambat Siswa</span><strong id="dashPctTerlambat">0%</strong></div>
+                  <div class="dash-bar-track"><div class="dash-bar-fill" id="dashBarTerlambat" style="width:0%"></div></div>
+                  <small id="dashSubTerlambat">0 Siswa Terlambat</small>
                 </div>
                 <div class="dash-bar-item">
                   <div class="dash-bar-label"><span><i class="bi bi-person-x-fill me-1"></i>Alpha Siswa</span><strong id="dashPctAlpha">0%</strong></div>
@@ -2782,7 +2809,21 @@
     document.querySelectorAll('#sidebarNavList .nav-link').forEach(function(lnk) { lnk.classList.remove('active'); });
 
     var targetSec = document.getElementById('sec-' + targetKey);
-    if (targetSec) targetSec.classList.remove('d-none');
+    if (targetSec) {
+      targetSec.classList.remove('d-none');
+      // Paksa repaint pada Android Chrome selepas menukar menu.
+      targetSec.style.visibility = 'visible';
+      targetSec.style.transform = 'translateZ(0)';
+      void targetSec.offsetHeight;
+      requestAnimationFrame(function() {
+        void targetSec.offsetHeight;
+        targetSec.style.transform = '';
+        if (window.matchMedia('(max-width: 767.98px)').matches) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          setTimeout(function() { window.dispatchEvent(new Event('resize')); void targetSec.offsetHeight; }, 80);
+        }
+      });
+    }
     applyMenuEditMode(targetKey);
 
     var activeNavItem = document.querySelector('#sidebarNavList .nav-item[data-menu="' + targetKey + '"] .nav-link');
@@ -2927,6 +2968,10 @@
         if(pA)pA.innerText=(data.absensiHariIni.pctAlpha||0)+'%';
         if(sA)sA.innerText=(data.absensiHariIni.totalAlpha||0)+' Siswa Alpha';
         updateDashboardAttendanceBar('dashBarAlpha',data.absensiHariIni.pctAlpha||0,285,false);
+        var pT=document.getElementById('dashPctTerlambat'),sT=document.getElementById('dashSubTerlambat');
+        if(pT)pT.innerText=(data.absensiHariIni.pctTerlambat||0)+'%';
+        if(sT)sT.innerText=(data.absensiHariIni.totalTerlambat||0)+' Siswa Terlambat';
+        updateDashboardAttendanceBar('dashBarTerlambat',data.absensiHariIni.pctTerlambat||0,35,false);
         updateDashboardAttendanceBar('dashBarHadir', data.absensiHariIni.pctHadir, 0, false);
         updateDashboardAttendanceBar('dashBarBolos', data.absensiHariIni.pctBolos, 58, false);
         var pI=document.getElementById('dashPctIzin'),pS=document.getElementById('dashPctSakit'),sI=document.getElementById('dashSubIzin'),sS=document.getElementById('dashSubSakit');
@@ -3061,6 +3106,10 @@
         document.getElementById('logoPreviewContainer').classList.remove('d-none');
         document.getElementById('loginLogoContainer').innerHTML = '<img src="' + p['Logo'] + '" class="login-logo-img rounded" alt="Logo">';
         document.getElementById('sidebarLogoContainer').innerHTML = '<img src="' + p['Logo'] + '" class="brand-logo-img rounded" alt="Logo">';
+        var mobileLogo = document.getElementById('mobileAppLogo');
+        if (mobileLogo) { mobileLogo.src = p['Logo']; mobileLogo.style.display = 'block'; }
+        var sidebarMobileLogo = document.getElementById('sidebarMobileLogo');
+        if (sidebarMobileLogo) { sidebarMobileLogo.src = p['Logo']; sidebarMobileLogo.style.display = 'block'; }
       }
 
       initSchoolMap(lat, lng, rad);
