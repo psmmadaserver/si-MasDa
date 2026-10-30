@@ -2838,9 +2838,8 @@
     var bsOffcanvas = sidebarEl ? bootstrap.Offcanvas.getInstance(sidebarEl) : null;
     if (bsOffcanvas) bsOffcanvas.hide();
 
-    // Android Chrome can restore the old scroll offset after Bootstrap closes
-    // the mobile offcanvas. Reset only after the hide transition has completed,
-    // then force layout so the selected section is visible immediately.
+    // Android Chrome kadang tidak mengecat ulang konten setelah offcanvas ditutup.
+    // Pertahankan header fixed, lalu lakukan repaint ringan pada section aktif.
     if (window.matchMedia('(max-width: 767.98px)').matches) {
       var resetMobileMenuViewport = function() {
         var app = document.getElementById('mainApp');
@@ -2848,29 +2847,42 @@
         if (app) { app.style.visibility = 'visible'; void app.offsetHeight; }
         if (activeSection) {
           activeSection.classList.remove('d-none');
+          activeSection.style.display = '';
           activeSection.style.visibility = 'visible';
-          void activeSection.offsetHeight;
+          activeSection.style.opacity = '1';
+          void activeSection.getBoundingClientRect().height;
         }
-        window.scrollTo(0, 0);
-        document.documentElement.scrollTop = 0;
-        document.body.scrollTop = 0;
-        if (app) app.scrollTop = 0;
-        requestAnimationFrame(function() {
+
+        var resetScroll = function() {
           window.scrollTo(0, 0);
           document.documentElement.scrollTop = 0;
           document.body.scrollTop = 0;
+          if (app) app.scrollTop = 0;
+        };
+        resetScroll();
+
+        requestAnimationFrame(function() {
           if (activeSection) {
-            activeSection.style.transform = 'none';
-            activeSection.style.display = '';
-            void activeSection.getBoundingClientRect().height;
-            activeSection.style.visibility = 'visible';
+            // Membaca layout dan mengganti opacity sementara memicu repaint
+            // tanpa mengubah ukuran/posisi section atau mengganggu header.
+            void activeSection.getBoundingClientRect();
+            activeSection.style.opacity = '0.999';
+            void activeSection.offsetHeight;
+            activeSection.style.opacity = '1';
           }
+          // Nudge scroll 1px lalu kembali ke atas: membantu Chrome Android
+          // menyegarkan viewport setelah perubahan kelas d-none/offcanvas.
+          window.scrollTo(0, 1);
+          requestAnimationFrame(function() {
+            resetScroll();
+            if (activeSection) void activeSection.getBoundingClientRect().height;
+          });
         });
       };
       if (sidebarEl && sidebarEl.classList.contains('show')) {
         sidebarEl.addEventListener('hidden.bs.offcanvas', resetMobileMenuViewport, { once: true });
       }
-      [0, 120, 380, 650].forEach(function(delay) { setTimeout(resetMobileMenuViewport, delay); });
+      [0, 120, 300, 550].forEach(function(delay) { setTimeout(resetMobileMenuViewport, delay); });
     }
 
     if (targetKey === 'honor') loadHonorGuru();
