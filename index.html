@@ -23,12 +23,20 @@
             var args = Array.prototype.slice.call(arguments);
             var token = currentToken();
             if (!token && (prop === 'logoutSession' || prop === 'getSessionUser') && args.length) token = String(args[0] || '');
+            // Login administrator memakai endpoint login khusus agar tidak bergantung
+            // pada dispatcher RPC saat deployment GAS lama masih aktif.
+            var requestBody;
+            if (prop === 'checkLogin') {
+              requestBody = { action: 'login', username: String(args[0] || ''), password: String(args[1] || '') };
+            } else {
+              requestBody = { action: 'rpc', method: prop, args: args, sessionToken: token };
+            }
             fetch('/api/masda', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               credentials: 'same-origin',
               cache: 'no-store',
-              body: JSON.stringify({ action: 'rpc', method: prop, args: args, sessionToken: token })
+              body: JSON.stringify(requestBody)
             }).then(function (response) {
               return response.text().then(function (raw) {
                 var data;
@@ -78,10 +86,7 @@
       html, body { min-height: 100%; overflow-x: hidden; overflow-anchor: none; }
       #mainApp { min-height: 100dvh; }
       #mainApp .row, #mainApp .row > [class*="col-"] { min-width: 0; }
-      /* Hindari compositing transform pada section: pada beberapa Android Chrome ini membuat konten baru tidak terlukis sampai layar disentuh/scroll. */
-      #mainApp .content-section { position: relative; transform: none !important; backface-visibility: visible !important; -webkit-backface-visibility: visible !important; }
-      #mainApp .content-section.d-none { display: none !important; }
-      #mainApp .content-section:not(.d-none) { display: block; visibility: visible !important; opacity: 1 !important; }
+      #mainApp .content-section { position: relative; transform: translateZ(0); backface-visibility: hidden; }
       #mainApp .sticky-top { background: #fff !important; color: #172033 !important; border-bottom: 1px solid #e5e7eb !important; box-shadow: 0 2px 10px rgba(15,23,42,.06) !important; z-index: 1030; }
       #mainApp .mobile-menu-btn { color: #334155 !important; border-color: #cbd5e1 !important; }
       #mainApp .mobile-menu-btn i { color: #334155 !important; }
@@ -2814,21 +2819,18 @@
     var targetSec = document.getElementById('sec-' + targetKey);
     if (targetSec) {
       targetSec.classList.remove('d-none');
-      // Android Chrome: tampilkan section tanpa transform/compositing layer.
-      // Reset viewport dilakukan setelah section benar-benar menjadi visible.
-      targetSec.style.removeProperty('transform');
+      // Paksa repaint pada Android Chrome selepas menukar menu.
       targetSec.style.visibility = 'visible';
-      targetSec.style.opacity = '1';
-      void targetSec.getBoundingClientRect();
-      if (window.matchMedia('(max-width: 767.98px)').matches) {
-        requestAnimationFrame(function() {
-          document.documentElement.style.scrollBehavior = 'auto';
-          window.scrollTo(0, 0);
-          document.documentElement.scrollTop = 0;
-          document.body.scrollTop = 0;
-          void targetSec.getBoundingClientRect();
-        });
-      }
+      targetSec.style.transform = 'translateZ(0)';
+      void targetSec.offsetHeight;
+      requestAnimationFrame(function() {
+        void targetSec.offsetHeight;
+        targetSec.style.transform = '';
+        if (window.matchMedia('(max-width: 767.98px)').matches) {
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+          setTimeout(function() { window.dispatchEvent(new Event('resize')); void targetSec.offsetHeight; }, 80);
+        }
+      });
     }
     applyMenuEditMode(targetKey);
 
@@ -2839,26 +2841,28 @@
     var bsOffcanvas = sidebarEl ? bootstrap.Offcanvas.getInstance(sidebarEl) : null;
     if (bsOffcanvas) bsOffcanvas.hide();
 
-    // Setelah sidebar ditutup, reset posisi dokumen dan paksa layout tanpa transform.
+    // Android Chrome can restore the old scroll offset after Bootstrap closes
+    // the mobile offcanvas. Reset only after the hide transition has completed,
+    // then force layout so the selected section is visible immediately.
     if (window.matchMedia('(max-width: 767.98px)').matches) {
       var resetMobileMenuViewport = function() {
+        var app = document.getElementById('mainApp');
         var activeSection = document.getElementById('sec-' + targetKey);
-        document.documentElement.style.scrollBehavior = 'auto';
+        if (app) { app.style.visibility = 'visible'; void app.offsetHeight; }
+        if (activeSection) {
+          activeSection.classList.remove('d-none');
+          activeSection.style.visibility = 'visible';
+          void activeSection.offsetHeight;
+        }
         window.scrollTo(0, 0);
         document.documentElement.scrollTop = 0;
         document.body.scrollTop = 0;
-        if (activeSection) {
-          activeSection.style.removeProperty('transform');
-          activeSection.style.visibility = 'visible';
-          activeSection.style.opacity = '1';
-          void activeSection.getBoundingClientRect();
-        }
-      };
-      if (sidebarEl && sidebarEl.classList.contains('show')) {
-        sidebarEl.addEventListener('hidden.bs.offcanvas', resetMobileMenuViewport, { once: true });
-      }
-      [100, 300].forEach(function(delay) { setTimeout(resetMobileMenuViewport, delay); });
-    } {
+        if (app) app.scrollTop = 0;
+        requestAnimationFrame(function() {
+          window.scrollTo(0, 0);
+          document.documentElement.scrollTop = 0;
+          document.body.scrollTop = 0;
+          if (activeSection) {
             activeSection.style.transform = 'translate3d(0,0,0)';
             void activeSection.getBoundingClientRect().height;
             requestAnimationFrame(function() { activeSection.style.transform = ''; });
