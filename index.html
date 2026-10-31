@@ -82,6 +82,9 @@
       /* Header mobile tetap melekat pada viewport ketika halaman digulir. */
       #mainApp > .mobile-topbar-fixed { position: fixed !important; top: 0; left: 0; right: 0; width: 100%; z-index: 1040; box-sizing: border-box; }
       #mainApp > .row.g-0 { padding-top: 66px !important; }
+      /* Hilangkan ruang kosong kolom pembungkus sidebar pada layar HP.
+         Sidebar tetap memakai Bootstrap offcanvas dan header fixed tidak diubah. */
+      #mainApp > .row.g-0 > .col-md-3.col-lg-2 { display: contents !important; }
       #mainApp .content-section { scroll-margin-top: 72px; }
       #mainApp .sticky-top { background: #fff !important; color: #172033 !important; border-bottom: 1px solid #e5e7eb !important; box-shadow: 0 2px 10px rgba(15,23,42,.06) !important; z-index: 1030; }
       #mainApp .mobile-menu-btn { color: #334155 !important; border-color: #cbd5e1 !important; }
