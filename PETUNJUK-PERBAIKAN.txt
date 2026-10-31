@@ -1,0 +1,21 @@
+PERBAIKAN LOGIN DAN LOGO Si MasDA
+
+PENYEBAB:
+Frontend memanggil backend menggunakan action "rpc", tetapi kode.gs yang dipasang terakhir tidak lagi menangani action tersebut. Akibatnya permintaan login/profil diproses sebagai permintaan sesi yang sudah habis. Logo profil juga gagal dimuat karena panggilan getProfil ikut gagal.
+
+ISI PAKET:
+- index.html: frontend dari paket anti-bentrok sebelumnya, dipertahankan.
+- kode.gs: backend anti-bentrok sebelumnya dengan dispatcher RPC dipulihkan agar cocok dengan frontend.
+- api/masda.js, vercel.json, package.json: jembatan Vercel yang menerima action rpc dan meneruskannya ke GAS.
+
+LANGKAH:
+1. Cadangkan kode.gs GAS yang sekarang dan folder/file frontend yang sekarang.
+2. Di Google Apps Script, ganti isi kode.gs dengan kode.gs dari paket ini. Jika proyek memiliki file .gs lain, jangan dihapus; pastikan tidak ada fungsi duplikat.
+3. Simpan, lalu Deploy > Manage deployments > Edit > pilih New version > Deploy.
+4. Pastikan URL deployment GAS yang sama tetap tersimpan di Environment Variables Vercel sebagai MASDA_GAS_URL.
+5. Di GitHub, ganti index.html dan pastikan api/masda.js, vercel.json, dan package.json ada di root seperti struktur dalam ZIP. Jangan menaruh folder pembungkus ZIP sebagai folder tingkat atas.
+6. Commit changes dan tunggu deployment Vercel selesai.
+7. Buka aplikasi lewat tab samaran atau hapus cache, lalu uji login. Logo sekolah dimuat dari Profil Sekolah melalui getProfil.
+
+CATATAN:
+Paket mempertahankan logika anti-bentrok yang ditambahkan sebelumnya dan memulihkan jalur RPC yang hilang. Jangan mengubah MASDA_GAS_URL ke URL lain. Jika masih gagal, periksa Apps Script > Executions dan log Vercel.
