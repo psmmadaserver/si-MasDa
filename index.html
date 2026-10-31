@@ -3023,8 +3023,12 @@
       updateDashboardTotalBars(data.siswa || 0, data.guru || 0, data.kelas || 0);
 
       if (data.absensiHariIni) {
-        document.getElementById('dashPctHadir').innerText = data.absensiHariIni.pctHadir + '%';
-        document.getElementById('dashSubHadir').innerText = data.absensiHariIni.totalHadir + ' Siswa Hadir';
+        // Siswa yang terlambat tetap dihitung hadir di sekolah.
+        // Sakit dan izin tetap kategori terpisah, tidak ditambahkan ke hadir.
+        var totalHadirDashboard = (Number(data.absensiHariIni.totalHadir) || 0) + (Number(data.absensiHariIni.totalTerlambat) || 0);
+        var pctHadirDashboard = Math.min(100, (Number(data.absensiHariIni.pctHadir) || 0) + (Number(data.absensiHariIni.pctTerlambat) || 0));
+        document.getElementById('dashPctHadir').innerText = pctHadirDashboard + '%';
+        document.getElementById('dashSubHadir').innerText = totalHadirDashboard + ' Siswa Hadir (termasuk terlambat)';
         document.getElementById('dashPctBolos').innerText = data.absensiHariIni.pctBolos + '%';
         document.getElementById('dashSubBolos').innerText = data.absensiHariIni.totalBolos + ' Siswa Bolos';
         var pA=document.getElementById('dashPctAlpha'),sA=document.getElementById('dashSubAlpha');
@@ -3035,7 +3039,7 @@
         if(pT)pT.innerText=(data.absensiHariIni.pctTerlambat||0)+'%';
         if(sT)sT.innerText=(data.absensiHariIni.totalTerlambat||0)+' Siswa Terlambat';
         updateDashboardAttendanceBar('dashBarTerlambat',data.absensiHariIni.pctTerlambat||0,35,false);
-        updateDashboardAttendanceBar('dashBarHadir', data.absensiHariIni.pctHadir, 0, false);
+        updateDashboardAttendanceBar('dashBarHadir', pctHadirDashboard, 0, false);
         updateDashboardAttendanceBar('dashBarBolos', data.absensiHariIni.pctBolos, 58, false);
         var pI=document.getElementById('dashPctIzin'),pS=document.getElementById('dashPctSakit'),sI=document.getElementById('dashSubIzin'),sS=document.getElementById('dashSubSakit');
         if(pI)pI.innerText=(data.absensiHariIni.pctIzin||0)+'%'; if(pS)pS.innerText=(data.absensiHariIni.pctSakit||0)+'%';
