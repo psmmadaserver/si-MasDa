@@ -82,10 +82,16 @@
       /* Header mobile tetap melekat pada viewport ketika halaman digulir. */
       #mainApp > .mobile-topbar-fixed { position: fixed !important; top: 0; left: 0; right: 0; width: 100%; z-index: 1040; box-sizing: border-box; }
       #mainApp > .row.g-0 { padding-top: 66px !important; }
-      /* Hilangkan ruang kosong kolom pembungkus sidebar pada layar HP.
-         Sidebar tetap memakai Bootstrap offcanvas dan header fixed tidak diubah. */
-      #mainApp > .row.g-0 > .col-md-3.col-lg-2 { display: contents !important; }
+      /* Sidebar mobile dikeluarkan dari alur layout agar tidak meninggalkan
+         ruang vertikal kosong sebelum konten. Offcanvas tetap berfungsi. */
+      #mainApp > .row.g-0 > .col-md-3.col-lg-2 {
+        position: absolute !important; left: 0 !important; top: 0 !important;
+        width: 0 !important; height: 0 !important; min-height: 0 !important;
+        padding: 0 !important; margin: 0 !important; overflow: visible !important;
+      }
+      #mainApp.d-none > .mobile-topbar-fixed { display: none !important; }
       #mainApp .content-section { scroll-margin-top: 72px; }
+      #mainApp > .row.g-0 > .col-md-9.col-lg-10 { position: relative; width: 100% !important; min-width: 0; }
       #mainApp .sticky-top { background: #fff !important; color: #172033 !important; border-bottom: 1px solid #e5e7eb !important; box-shadow: 0 2px 10px rgba(15,23,42,.06) !important; z-index: 1030; }
       #mainApp .mobile-menu-btn { color: #334155 !important; border-color: #cbd5e1 !important; }
       #mainApp .mobile-menu-btn i { color: #334155 !important; }
@@ -2300,7 +2306,9 @@
 
     var loginPage = document.getElementById('loginPage');
     var mainApp = document.getElementById('mainApp');
+    var publicHome = document.getElementById('publicHomePage');
     if (loginPage) loginPage.classList.add('d-none');
+    if (publicHome) publicHome.classList.add('d-none');
     if (mainApp) mainApp.classList.remove('d-none');
     var badge = document.getElementById('userRoleBadge');
     var mobileBadge = document.getElementById('mobileUserRoleBadge');
@@ -5371,7 +5379,7 @@
     var boxes=document.querySelectorAll('.public-home-menu-check:checked');var menus=Array.from(boxes).map(function(el){return el.value;});
     google.script.run.withSuccessHandler(function(r){publicHomeSelectedMenus=menus;renderPublicHomeMenu();appNotify((r&&r.message)||'Tampilan halaman awal berhasil disimpan.','success');}).withFailureHandler(function(e){appNotify('Gagal menyimpan tampilan halaman awal: '+(e.message||e),'error');}).savePublicHomeMenuConfig(menus,sessionStorage.getItem(MASDA_SESSION_KEY)||'');
   }
-  function showLoginPage(type){var home=document.getElementById('publicHomePage'),login=document.getElementById('loginPage');if(home)home.classList.add('d-none');if(login){login.classList.remove('d-none');login.classList.remove('login-student-mode','login-admin-mode');login.classList.add(type==='student'?'login-student-mode':'login-admin-mode');}var badge=document.getElementById('loginPortalBadge');if(badge)badge.innerHTML=type==='student'?'<i class="bi bi-mortarboard me-1"></i>Portal Siswa':'<i class="bi bi-shield-check me-1"></i>Portal Guru &amp; Staf';var alertBox=document.getElementById('loginAlert');if(alertBox)alertBox.innerHTML='';var menu=document.getElementById('publicHomeLoginMenu');if(menu)menu.classList.add('d-none');window.scrollTo({top:0,behavior:'smooth'});}
+  function showLoginPage(type){var home=document.getElementById('publicHomePage'),login=document.getElementById('loginPage'),main=document.getElementById('mainApp');if(main)main.classList.add('d-none');if(home)home.classList.add('d-none');if(login){login.classList.remove('d-none');login.classList.remove('login-student-mode','login-admin-mode');login.classList.add(type==='student'?'login-student-mode':'login-admin-mode');}var badge=document.getElementById('loginPortalBadge');if(badge)badge.innerHTML=type==='student'?'<i class="bi bi-mortarboard me-1"></i>Portal Siswa':'<i class="bi bi-shield-check me-1"></i>Portal Guru &amp; Staf';var alertBox=document.getElementById('loginAlert');if(alertBox)alertBox.innerHTML='';var menu=document.getElementById('publicHomeLoginMenu');if(menu)menu.classList.add('d-none');window.scrollTo({top:0,behavior:'smooth'});}
   function backToPublicHome(){var home=document.getElementById('publicHomePage'),login=document.getElementById('loginPage'),main=document.getElementById('mainApp');if(main)main.classList.add('d-none');if(login){login.classList.add('d-none');login.classList.remove('login-student-mode','login-admin-mode');}if(home)home.classList.remove('d-none');closePublicHomeContent();window.scrollTo({top:0,behavior:'smooth'});}
   function togglePublicHomeLoginMenu(){var menu=document.getElementById('publicHomeLoginMenu'),btn=document.getElementById('publicHomeLoginToggle');if(!menu)return;var opening=menu.classList.contains('d-none');menu.classList.toggle('d-none',!opening);if(btn)btn.setAttribute('aria-expanded',opening?'true':'false');}
   function showPublicHomeLogin(type){showLoginPage(type==='student'?'student':'admin');var toggle=document.getElementById('publicHomeLoginToggle');if(toggle)toggle.setAttribute('aria-expanded','false');if(type==='student'){setTimeout(function(){var f=document.getElementById('studentLoginNisn');if(f)f.focus();},120);}else{var u=document.getElementById('loginUser');if(u)u.focus();}}
